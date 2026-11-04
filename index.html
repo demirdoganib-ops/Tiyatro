@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ya<!DOCTYPE html>
 <html lang="tr">
 <head>
 <meta charset="utf-8">
@@ -12,13 +12,18 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;min-height:100vh}
 #page{padding:calc(60px + env(safe-area-inset-top,0px)) 16px 140px}
-body.edit #page{padding-top:calc(155px + env(safe-area-inset-top,0px))}
-#stage{position:relative;max-width:760px;margin:0 auto;min-height:60vh}
+body.edit #page{padding-top:calc(110px + env(safe-area-inset-top,0px))}
+#stage{position:relative;max-width:760px;margin:0 auto;min-height:60vh;display:flex;flex-direction:column}
 .line{margin:0 0 var(--gap);min-height:1.4em;font-size:var(--fs);font-weight:600;line-height:var(--lh);text-align:var(--al);white-space:pre-wrap;word-break:break-word;color:var(--tx)}
-.row{display:flex;gap:6px;align-items:flex-start;margin:0 0 var(--gap)}
-.row textarea{flex:1;min-width:0;font:600 var(--fs)/var(--lh) system-ui,sans-serif;text-align:var(--al);color:var(--tx);background:rgba(255,255,255,.55);border:1px dashed #aaa;border-radius:8px;padding:6px 8px;resize:none;overflow:hidden}
-.mini{display:flex;flex-direction:column;gap:4px}
-.mini button{width:34px;height:30px;font:600 14px system-ui;border:1px solid #ccc;border-radius:8px;background:#fff;padding:0}
+.row{position:relative;display:flex;gap:4px;align-items:flex-start;margin:0 0 var(--gap)}
+.row textarea{flex:1;min-width:0;font:600 var(--fs)/var(--lh) system-ui,sans-serif;text-align:var(--al);color:var(--tx);background:transparent;border:1px dashed transparent;outline:none;border-radius:8px;padding:6px 8px;resize:none;overflow:hidden}
+.row.sel textarea{background:rgba(255,255,255,.55);border-color:#aaa}
+.row .tg{flex:none;width:28px;height:30px;font:700 16px system-ui;border:1px solid #ccc;border-radius:8px;background:#fff;padding:0;opacity:0;pointer-events:none}
+.row.sel .tg{opacity:1;pointer-events:auto}
+.row .mini{display:none;position:absolute;right:32px;top:0;background:var(--bg);padding:3px;border-radius:10px;box-shadow:0 1px 6px rgba(0,0,0,.3);z-index:6}
+.row.menu .mini{display:flex}
+.mini{display:flex;flex-direction:row;gap:4px}
+.mini button{width:30px;height:30px;font:600 14px system-ui;border:1px solid #ccc;border-radius:8px;background:#fff;padding:0}
 .mini .hd{touch-action:none;background:#eee}
 .hint{color:#888;font-size:16px;padding:10px 0}
 #ctl{position:fixed;top:calc(8px + env(safe-area-inset-top,0px));left:8px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;z-index:20}
@@ -26,14 +31,15 @@ body.edit #page{padding-top:calc(155px + env(safe-area-inset-top,0px))}
 #ctl #mn{width:34px;height:34px;padding:0;border-radius:50%;opacity:.65;font-size:17px}
 #menu{display:none;flex-direction:column;gap:6px;align-items:flex-start}
 #menu.on{display:flex}
-#addbox{position:fixed;top:0;right:0;z-index:20;display:none;flex-direction:column;gap:8px;border-left:6px solid var(--or);border-bottom:6px solid var(--or);background:var(--bg);padding:calc(10px + env(safe-area-inset-top,0px)) 10px 8px 12px}
+#addbox{position:fixed;top:0;right:0;z-index:20;display:none;flex-direction:column;gap:4px;background:var(--bg);padding:calc(6px + env(safe-area-inset-top,0px)) 8px 6px 10px;border-radius:0 0 0 10px}
 body.edit #addbox{display:flex}
-#addbox button{display:flex;align-items:center;gap:8px;background:none;border:0;font:500 20px system-ui;color:#000;padding:0}
-#addbox i{display:inline-flex;width:36px;height:36px;background:var(--or);align-items:center;justify-content:center;font:700 28px/1 system-ui;font-style:normal;color:#000}
-.dot{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font:700 18px system-ui;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;z-index:5;box-shadow:0 1px 4px rgba(0,0,0,.25)}
-.a{width:58px;height:58px;background:var(--bl)}
-.n{width:42px;height:42px;background:var(--or)}
-.a.pl{outline:5px solid rgba(63,169,255,.4)}
+#addbox button{display:flex;align-items:center;gap:6px;background:none;border:0;font:500 15px system-ui;color:#000;padding:0}
+#addbox i{display:inline-flex;width:24px;height:24px;background:var(--or);align-items:center;justify-content:center;font:700 20px/1 system-ui;font-style:normal;color:#000;border-radius:6px}
+.dot{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font:700 14px system-ui;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;z-index:5;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.a,.n{width:34px;height:34px}
+.a{background:rgba(63,169,255,.5)}
+.n{background:rgba(251,140,28,.5)}
+.a.pl{outline:3px solid rgba(63,169,255,.4)}
 #nv{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(88vw,520px);max-height:70vh;overflow:auto;background:#fff;color:#111;border:4px solid var(--or);border-radius:14px;padding:18px;font:600 calc(var(--fs) + 2px)/1.4 system-ui;white-space:pre-wrap;z-index:50;display:none;pointer-events:none}
 #nv.on{display:block}
 #nv.pin{pointer-events:auto}
@@ -60,6 +66,8 @@ body.edit #addbox{display:flex}
 <script>
 var S={mode:"edit",size:22,color:"#222222",bg:"#f0f0f0",align:"left",gap:14,lh:1.4,items:[]};
 var EDIT=true,mem={};
+var SWAP=30; // çerçeveler değdikten sonra yer değiştirmek için gereken ekstra kaydırma (px). Büyütürsen daha zor yer değiştirir.
+var menuIt=null,selIt=null,rowOf=new WeakMap();
 var db=null,urls={},cur=null,curId=null,pinned=false;
 function openDb(){return new Promise(function(res){try{var r=indexedDB.open("tiyatro2",1);r.onupgradeneeded=function(){r.result.createObjectStore("kv")};r.onsuccess=function(){db=r.result;res()};r.onerror=function(){res()}}catch(e){res()}})}
 function get(k){return new Promise(function(res){if(!db)return res(null);try{var q=db.transaction("kv").objectStore("kv").get(k);q.onsuccess=function(){res(q.result||null)};q.onerror=function(){res(null)}}catch(e){res(null)}})}
@@ -98,7 +106,7 @@ function openSettings(){var s=$("sheet");s.innerHTML="";s.append(h("h3",{textCon
  paint();s.append(ab);
  var g=h("b",{textContent:S.gap+" px"}),l=h("b",{textContent:S.lh});
  s.append(h("label",{},["Metinler arası boşluk",g]));
- s.append(h("input",{type:"range",min:0,max:60,value:S.gap,oninput:function(e){S.gap=+e.target.value;g.textContent=S.gap+" px";apply();save()}}));
+ s.append(h("input",{type:"range",min:0,max:60,value:S.gap,oninput:function(e){S.gap=+e.target.value;g.textContent=S.gap+" px";render();save()}}));
  s.append(h("label",{},["Satır aralığı",l]));
  s.append(h("input",{type:"range",min:1,max:2.4,step:0.1,value:S.lh,oninput:function(e){S.lh=+e.target.value;l.textContent=S.lh;apply();document.querySelectorAll("#stage textarea").forEach(sz);save()}}));
  s.append(h("label",{},["Yazı rengi",h("input",{type:"color",value:S.color,oninput:function(e){S.color=e.target.value;apply();save()}})]));
@@ -108,7 +116,7 @@ function tap(it,el){
  if(S.mode==="edit"){openSheet(it);return}
  if(it.type==="audio"){if(!it.audioId){if(EDIT)pick(it)}else playAudio(it);return}
  var n=Date.now();if(n-(el._lt||0)<350){el._lt=0;showNote(it,true)}else el._lt=n}
-function attach(el,it){var sx,sy,ox,oy,mv=false,held=false,t,down=false,size=it.type==="audio"?58:42;
+function attach(el,it){var sx,sy,ox,oy,mv=false,held=false,t,down=false,size=34;
  el.addEventListener("pointerdown",function(e){down=true;mv=false;held=false;sx=e.clientX;sy=e.clientY;ox=it.x;oy=it.y;try{el.setPointerCapture(e.pointerId)}catch(x){}
   if(it.type==="note"&&S.mode==="play"&&it.text){t=setTimeout(function(){if(!mv){held=true;showNote(it,false)}},350)}});
  el.addEventListener("pointermove",function(e){if(!down||!EDIT)return;var dx=e.clientX-sx,dy=e.clientY-sy;
@@ -118,20 +126,57 @@ function attach(el,it){var sx,sy,ox,oy,mv=false,held=false,t,down=false,size=it.
  el.addEventListener("pointerup",function(){end(false)});
  el.addEventListener("pointercancel",function(){end(true)});
  el.addEventListener("contextmenu",function(e){e.preventDefault()})}
-function handle(it,getRow){var b=h("button",{class:"hd",textContent:"↕"});var sy,m0,dn=false;
- b.addEventListener("pointerdown",function(e){dn=true;sy=e.clientY;m0=it.mt||0;try{b.setPointerCapture(e.pointerId)}catch(x){}});
- b.addEventListener("pointermove",function(e){if(!dn)return;it.mt=Math.max(0,Math.min(400,Math.round(m0+e.clientY-sy)));getRow().style.marginTop=it.mt+"px"});
+// Üstünde metin olmayan ilk metin mi?
+function isFirst(it){for(var k=0;k<S.items.length;k++){if(S.items[k]===it)return true;if(S.items[k].type==="text")return false}return true}
+// Üst boşluk: gap + mt. mt en az -gap olabilir (çerçeveler değene kadar), ilk metinde 0.
+function mtv(it){return Math.max(it.mt||0,isFirst(it)?0:-S.gap)}
+function swapUp(it){var i=S.items.indexOf(it),j=i-1;while(j>=0&&S.items[j].type!=="text")j--;if(j<0)return;
+ var o=S.items[j];S.items[j]=it;S.items[i]=o;it.mt=isFirst(it)?0:-S.gap;save();render()}
+function isT(x){return x.type==="text"}
+function refreshSel(){document.querySelectorAll(".row").forEach(function(r){r.classList.toggle("sel",r._it===selIt);r.classList.toggle("menu",r._it===menuIt)})}
+function setSel(it){if(it!==selIt)menuIt=null;selIt=it;refreshSel()}
+function tstyle(el,it){el.style.fontSize=it.fs?it.fs+"px":"";el.style.color=it.c||"";el.style.fontWeight=it.w||"";el.style.fontStyle=it.i?"italic":""}
+function setm(x,v){x.mt=v;var r=rowOf.get(x);if(r)r.style.marginTop=v+"px"}
+// Yer değiştirirken metinler en son bulundukları konumu korur (mümkün olduğunca)
+function swapDrag(tx,k,base,raw){var j,A=tx[k],P=tx[k-1],B=tx[k+1],O=tx[k-2];
+ for(j=k;j<tx.length;j++)setm(tx[j],base[j]);
+ var rA=rowOf.get(A),rP=rowOf.get(P),rB=B&&rowOf.get(B),rO=O&&rowOf.get(O);
+ var seq=[[A,rA.offsetTop+(raw-base[k]),rA.offsetHeight],[P,rP.offsetTop,rP.offsetHeight]];
+ if(B)seq.push([B,rB.offsetTop,rB.offsetHeight]);
+ var pb=rO?rO.offsetTop+rO.offsetHeight:0,first=!O;
+ var i=S.items.indexOf(A),jj=S.items.indexOf(P);S.items[jj]=A;S.items[i]=P;
+ seq.forEach(function(q){var top=Math.max(q[1],first?0:pb);q[0].mt=Math.round(top-pb-(first?0:S.gap));pb=top+q[2];first=false});
+ save();render()}
+function handle(it){var b=h("button",{class:"hd",textContent:"↕"});var sy,tx,k,base,dn=false;
+ b.addEventListener("pointerdown",function(e){dn=true;sy=e.clientY;tx=S.items.filter(isT);k=tx.indexOf(it);base=tx.map(mtv);try{b.setPointerCapture(e.pointerId)}catch(x){}});
+ b.addEventListener("pointermove",function(e){if(!dn)return;var lo=k===0?0:-S.gap,raw=base[k]+e.clientY-sy,j;
+  if(k>0&&raw<lo-SWAP){dn=false;swapDrag(tx,k,base,raw);return}
+  var nm=Math.max(lo,Math.min(1000,Math.round(raw))),d=nm-base[k],rem=d;setm(it,nm);
+  // Aşağıdaki metinler: boş yer varsa itilmez, sadece boşluk bitince itilir
+  for(j=k+1;j<tx.length;j++){var v;if(d>=0){var ab=Math.min(rem,base[j]+S.gap);v=base[j]-ab;rem-=ab}else v=base[j]-(j===k+1?d:0);setm(tx[j],v)}});
  function up(){if(dn){dn=false;save();fit()}}
  b.addEventListener("pointerup",up);b.addEventListener("pointercancel",up);return b}
-function moveText(i,d){var j=i+d;while(j>=0&&j<S.items.length&&S.items[j].type!=="text")j+=d;if(j<0||j>=S.items.length)return;var t=S.items[i];S.items[i]=S.items[j];S.items[j]=t;save();render()}
+function openStyle(it){var s=$("sheet");s.innerHTML="";s.append(h("h3",{textContent:"Yazı stili"}));
+ var v=h("b",{textContent:(it.fs||S.size)+" px"});
+ s.append(h("label",{},["Boyut",v]));
+ s.append(h("input",{type:"range",min:10,max:80,value:it.fs||S.size,oninput:function(e){it.fs=+e.target.value;v.textContent=it.fs+" px";render();save()}}));
+ s.append(h("label",{},["Renk",h("input",{type:"color",value:it.c||S.color,oninput:function(e){it.c=e.target.value;render();save()}})]));
+ s.append(h("label",{},["Kalınlık"]));
+ var wb=h("div",{style:"display:flex;gap:6px"}),wv=[400,600,800];
+ function paint(){Array.prototype.forEach.call(wb.children,function(b,k){b.className=(it.w||600)===wv[k]?"p":""})}
+ ["İnce","Normal","Kalın"].forEach(function(n,k){wb.append(h("button",{textContent:n,style:"flex:1;font-weight:"+wv[k],onclick:function(){it.w=wv[k];render();save();paint()}}))});
+ paint();s.append(wb);
+ var ib=h("button",{textContent:"İtalik",style:"font-style:italic",onclick:function(){it.i=!it.i;ib.className=it.i?"p":"";render();save()}});ib.className=it.i?"p":"";s.append(ib);
+ s.append(h("button",{textContent:"Varsayılana dön",onclick:function(){delete it.fs;delete it.c;delete it.w;delete it.i;render();save();openStyle(it)}}));
+ s.append(h("button",{class:"p",textContent:"Tamam",onclick:closeSheet}));s.className="on"}
 function render(){apply();var st=$("stage");st.innerHTML="";var edit=S.mode==="edit",tas=[],w=st.clientWidth||300;
  if(!S.items.length)st.append(h("div",{class:"hint",textContent:edit?"Sağ üstten + Metin / + Ses / + Not ekle.":"Henüz yayınlanmış proje yok."}));
- S.items.forEach(function(it,i){
+ S.items.forEach(function(it){
   if(it.type==="text"){
-   if(edit){var ta=h("textarea",{value:it.text||"",placeholder:"Metin…",rows:1,oninput:function(e){it.text=e.target.value;sz(e.target);save()}});tas.push(ta);
-    var rw=h("div",{class:"row"},[ta,h("div",{class:"mini"},[handle(it,function(){return rw}),h("button",{textContent:"↑",onclick:function(){moveText(i,-1)}}),h("button",{textContent:"↓",onclick:function(){moveText(i,1)}}),h("button",{textContent:"✕",onclick:function(e){sure(e.currentTarget,function(){S.items.splice(S.items.indexOf(it),1);save();render()},"Sil?")}})])]);rw.style.marginTop=(it.mt||0)+"px";st.append(rw)}
-   else{var ln=h("div",{class:"line",textContent:it.text||""});ln.style.marginTop=(it.mt||0)+"px";st.append(ln)}
-  }else{var size=it.type==="audio"?58:42;var d=h("div",{class:"dot "+(it.type==="audio"?"a":"n")});d._it=it;
+   if(edit){var ta=h("textarea",{value:it.text||"",placeholder:"Metin…",rows:1,onfocus:function(){setSel(it)},oninput:function(e){it.text=e.target.value;sz(e.target);save()}});tstyle(ta,it);tas.push(ta);
+    var rw=h("div",{class:"row"+(it===selIt?" sel":"")+(it===menuIt?" menu":"")},[ta,h("button",{class:"tg",textContent:"⋯",onclick:function(){menuIt=menuIt===it?null:it;refreshSel()}}),h("div",{class:"mini"},[handle(it),h("button",{textContent:"Aa",style:"font-size:13px",onclick:function(){openStyle(it)}}),h("button",{textContent:"✕",onclick:function(e){sure(e.currentTarget,function(){S.items.splice(S.items.indexOf(it),1);save();render()},"Sil?")}})])]);rw._it=it;rowOf.set(it,rw);rw.style.marginTop=mtv(it)+"px";st.append(rw)}
+   else{var ln=h("div",{class:"line",textContent:it.text||""});tstyle(ln,it);ln.style.marginTop=mtv(it)+"px";st.append(ln)}
+  }else{var size=34;var d=h("div",{class:"dot "+(it.type==="audio"?"a":"n")});d._it=it;
    d.style.left=Math.max(0,Math.min(it.x,w-size))+"px";d.style.top=it.y+"px";lab(d);attach(d,it);st.append(d)}
  });
  tas.forEach(sz);fit()}
@@ -144,7 +189,7 @@ document.querySelectorAll("[data-add]").forEach(function(b){b.onclick=function()
 $("mode").onclick=function(){S.mode=S.mode==="edit"?"play":"edit";closeSheet();hideNote();$("menu").classList.remove("on");save();render();window.scrollTo(0,0)};
 $("set").onclick=function(){$("menu").classList.remove("on");openSettings()};
 $("mn").onclick=function(){$("menu").classList.toggle("on")};
-document.addEventListener("pointerdown",function(e){if(!$("ctl").contains(e.target))$("menu").classList.remove("on")});
+document.addEventListener("pointerdown",function(e){var t=e.target;if(!$("ctl").contains(t))$("menu").classList.remove("on");if(selIt&&!(t.closest&&(t.closest(".row")||t.closest("#sheet")||t.closest("#addbox")||t.closest("#ctl"))))setSel(null)});
 $("fs").onclick=function(){var d=document.documentElement;$("menu").classList.remove("on");try{if(document.fullscreenElement||document.webkitFullscreenElement){(document.exitFullscreen||document.webkitExitFullscreen).call(document)}else if(d.requestFullscreen){d.requestFullscreen()}else if(d.webkitRequestFullscreen){d.webkitRequestFullscreen()}else{alert("Bu tarayıcı tam ekranı desteklemiyor. Tarayıcı menüsünden Ana ekrana ekle yap.")}}catch(x){}};
 window.addEventListener("resize",fit);
 function b64(b){return new Promise(function(r){var f=new FileReader();f.onload=function(){r(f.result)};f.readAsDataURL(b)})}
