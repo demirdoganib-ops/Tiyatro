@@ -48,7 +48,7 @@ body.edit #addbox{display:flex}
 </style>
 </head>
 <body>
-<div id="ctl"><button id="mn">☰</button><div id="menu"><button id="mode"></button><button id="set">⚙ Ayarlar</button><button id="fs">⛶ Tam ekran</button></div></div>
+<div id="ctl"><button id="mn">☰</button><div id="menu"><button id="mode"></button><button id="set">⚙ Ayarlar</button><button id="exp">⬇ Projeyi indir</button><button id="imp">⬆ Proje yükle</button><button id="fs">⛶ Tam ekran</button></div></div>
 <div id="addbox">
 <button data-add="text"><i>+</i>Metin</button>
 <button data-add="audio"><i>+</i>Ses</button>
@@ -59,12 +59,13 @@ body.edit #addbox{display:flex}
 <div id="sheet"></div>
 <script>
 var S={mode:"edit",size:22,color:"#222222",bg:"#f0f0f0",align:"left",gap:14,lh:1.4,items:[]};
+var EDIT=true,mem={};
 var db=null,urls={},cur=null,curId=null,pinned=false;
 function openDb(){return new Promise(function(res){try{var r=indexedDB.open("tiyatro2",1);r.onupgradeneeded=function(){r.result.createObjectStore("kv")};r.onsuccess=function(){db=r.result;res()};r.onerror=function(){res()}}catch(e){res()}})}
 function get(k){return new Promise(function(res){if(!db)return res(null);try{var q=db.transaction("kv").objectStore("kv").get(k);q.onsuccess=function(){res(q.result||null)};q.onerror=function(){res(null)}}catch(e){res(null)}})}
 function put(k,v){return new Promise(function(res){if(!db)return res();try{var t=db.transaction("kv","readwrite");t.objectStore("kv").put(v,k);t.oncomplete=res;t.onerror=res}catch(e){res()}})}
 function del(k){return new Promise(function(res){if(!db)return res();try{var t=db.transaction("kv","readwrite");t.objectStore("kv").delete(k);t.oncomplete=res;t.onerror=res}catch(e){res()}})}
-var tm;function save(){clearTimeout(tm);tm=setTimeout(function(){put("s2",S)},300)}
+var tm;function save(){clearTimeout(tm);tm=setTimeout(function(){put(EDIT?"s2":"vset",EDIT?S:{size:S.size,color:S.color,bg:S.bg,align:S.align,gap:S.gap,lh:S.lh})},300)}
 function h(t,a,k){var e=document.createElement(t);for(var x in a||{}){if(x==="class")e.className=a[x];else if(x.slice(0,2)==="on")e.addEventListener(x.slice(2),a[x]);else e[x]=a[x]}(k||[]).forEach(function(c){e.append(c)});return e}
 function $(i){return document.getElementById(i)}
 function sure(btn,fn,msg){if(!btn.dataset.s){btn.dataset.s=1;var o=btn.textContent;btn.textContent=msg;setTimeout(function(){delete btn.dataset.s;btn.textContent=o},3000);return}fn()}
@@ -72,7 +73,7 @@ function sz(t){t.style.height="auto";t.style.height=t.scrollHeight+"px"}
 function apply(){var r=document.documentElement.style;r.setProperty("--fs",S.size+"px");r.setProperty("--tx",S.color);r.setProperty("--bg",S.bg);r.setProperty("--gap",S.gap+"px");r.setProperty("--lh",S.lh);r.setProperty("--al",S.align);document.body.className=S.mode;$("mode").textContent=S.mode==="edit"?"▶ Oyna":"✎ Düzenle"}
 function fit(){var m=0;S.items.forEach(function(it){if(it.type!=="text"&&it.y>m)m=it.y});$("stage").style.minHeight=Math.max(window.innerHeight*0.6,m+120)+"px"}
 function lab(e){var it=e._it;if(!it||it.type!=="audio")return;e.textContent=!it.audioId?"+":(curId===it.id?"■":"▶");e.classList.toggle("pl",curId===it.id)}
-function audioUrl(it){return get("a:"+it.id).then(function(b){if(!b)return null;return urls[it.id]||(urls[it.id]=URL.createObjectURL(b))})}
+function audioUrl(it){if(mem[it.id])return Promise.resolve(urls[it.id]||(urls[it.id]=URL.createObjectURL(mem[it.id])));return get("a:"+it.id).then(function(b){if(!b)return null;return urls[it.id]||(urls[it.id]=URL.createObjectURL(b))})}
 function stopAudio(){if(cur){cur.pause();cur=null}curId=null;document.querySelectorAll(".a").forEach(lab)}
 function playAudio(it){if(curId===it.id){stopAudio();return}stopAudio();audioUrl(it).then(function(u){if(!u)return;var a=new Audio(u);cur=a;curId=it.id;a.onended=function(){if(cur===a)stopAudio()};a.play().catch(function(){stopAudio()});document.querySelectorAll(".a").forEach(lab)})}
 function pick(it){var f=document.createElement("input");f.type="file";f.accept="audio/*";f.onchange=function(){var file=f.files[0];if(!file)return;if(urls[it.id]){URL.revokeObjectURL(urls[it.id]);delete urls[it.id]}if(curId===it.id)stopAudio();put("a:"+it.id,file).then(function(){it.audioId=true;it.name=file.name;save();render();if($("sheet").className==="on")openSheet(it)})};f.click()}
@@ -105,12 +106,12 @@ function openSettings(){var s=$("sheet");s.innerHTML="";s.append(h("h3",{textCon
  s.append(h("button",{class:"p",textContent:"Tamam",onclick:closeSheet}));s.className="on"}
 function tap(it,el){
  if(S.mode==="edit"){openSheet(it);return}
- if(it.type==="audio"){if(!it.audioId)pick(it);else playAudio(it);return}
+ if(it.type==="audio"){if(!it.audioId){if(EDIT)pick(it)}else playAudio(it);return}
  var n=Date.now();if(n-(el._lt||0)<350){el._lt=0;showNote(it,true)}else el._lt=n}
 function attach(el,it){var sx,sy,ox,oy,mv=false,held=false,t,down=false,size=it.type==="audio"?58:42;
  el.addEventListener("pointerdown",function(e){down=true;mv=false;held=false;sx=e.clientX;sy=e.clientY;ox=it.x;oy=it.y;try{el.setPointerCapture(e.pointerId)}catch(x){}
   if(it.type==="note"&&S.mode==="play"&&it.text){t=setTimeout(function(){if(!mv){held=true;showNote(it,false)}},350)}});
- el.addEventListener("pointermove",function(e){if(!down)return;var dx=e.clientX-sx,dy=e.clientY-sy;
+ el.addEventListener("pointermove",function(e){if(!down||!EDIT)return;var dx=e.clientX-sx,dy=e.clientY-sy;
   if(!mv&&Math.hypot(dx,dy)>8){mv=true;clearTimeout(t);if(held){held=false;if(!pinned)hideNote()}}
   if(mv){it.x=Math.max(0,Math.min($("stage").clientWidth-size,ox+dx));it.y=Math.max(0,oy+dy);el.style.left=it.x+"px";el.style.top=it.y+"px"}});
  function end(c){if(!down)return;down=false;clearTimeout(t);if(mv){save();fit();return}if(held){if(!pinned)hideNote();return}if(!c)tap(it,el)}
@@ -124,7 +125,7 @@ function handle(it,getRow){var b=h("button",{class:"hd",textContent:"↕"});var 
  b.addEventListener("pointerup",up);b.addEventListener("pointercancel",up);return b}
 function moveText(i,d){var j=i+d;while(j>=0&&j<S.items.length&&S.items[j].type!=="text")j+=d;if(j<0||j>=S.items.length)return;var t=S.items[i];S.items[i]=S.items[j];S.items[j]=t;save();render()}
 function render(){apply();var st=$("stage");st.innerHTML="";var edit=S.mode==="edit",tas=[],w=st.clientWidth||300;
- if(!S.items.length&&edit)st.append(h("div",{class:"hint",textContent:"Sağ üstten + Metin / + Ses / + Not ekle."}));
+ if(!S.items.length)st.append(h("div",{class:"hint",textContent:edit?"Sağ üstten + Metin / + Ses / + Not ekle.":"Henüz yayınlanmış proje yok."}));
  S.items.forEach(function(it,i){
   if(it.type==="text"){
    if(edit){var ta=h("textarea",{value:it.text||"",placeholder:"Metin…",rows:1,oninput:function(e){it.text=e.target.value;sz(e.target);save()}});tas.push(ta);
@@ -146,7 +147,20 @@ $("mn").onclick=function(){$("menu").classList.toggle("on")};
 document.addEventListener("pointerdown",function(e){if(!$("ctl").contains(e.target))$("menu").classList.remove("on")});
 $("fs").onclick=function(){var d=document.documentElement;$("menu").classList.remove("on");try{if(document.fullscreenElement||document.webkitFullscreenElement){(document.exitFullscreen||document.webkitExitFullscreen).call(document)}else if(d.requestFullscreen){d.requestFullscreen()}else if(d.webkitRequestFullscreen){d.webkitRequestFullscreen()}else{alert("Bu tarayıcı tam ekranı desteklemiyor. Tarayıcı menüsünden Ana ekrana ekle yap.")}}catch(x){}};
 window.addEventListener("resize",fit);
-openDb().then(function(){return get("s2")}).then(function(s){if(s)S=Object.assign({},S,s);render()});
+function b64(b){return new Promise(function(r){var f=new FileReader();f.onload=function(){r(f.result)};f.readAsDataURL(b)})}
+function unb64(d){return fetch(d).then(function(r){return r.blob()})}
+$("exp").onclick=function(){$("menu").classList.remove("on");var A={};
+ Promise.all(S.items.filter(function(i){return i.type==="audio"&&i.audioId}).map(function(it){return get("a:"+it.id).then(function(b){if(b)return b64(b).then(function(d){A[it.id]=d})})})).then(function(){
+  var j=JSON.stringify({v:Date.now(),s:{size:S.size,color:S.color,bg:S.bg,align:S.align,gap:S.gap,lh:S.lh,items:S.items},a:A});
+  var u=URL.createObjectURL(new Blob([j],{type:"application/json"}));var a=document.createElement("a");a.href=u;a.download="proje.json";document.body.append(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},5000)})};
+$("imp").onclick=function(){$("menu").classList.remove("on");var f=document.createElement("input");f.type="file";f.accept=".json,application/json";
+ f.onchange=function(){var fl=f.files[0];if(!fl)return;fl.text().then(function(t){var p=JSON.parse(t);S=Object.assign(S,p.s,{mode:"edit"});return Promise.all(Object.keys(p.a||{}).map(function(id){return unb64(p.a[id]).then(function(b){return put("a:"+id,b)})}))}).then(function(){urls={};save();render()}).catch(function(){alert("Dosya okunamadı")})};f.click()};
+if(!EDIT){["mode","imp","exp"].forEach(function(i){$(i).style.display="none"})}
+openDb().then(function(){
+ if(EDIT)return get("s2").then(function(s){if(s)S=Object.assign({},S,s);render()});
+ S.mode="play";
+ return fetch("proje.json",{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(p){S=Object.assign(S,p.s,{mode:"play"});return Promise.all(Object.keys(p.a||{}).map(function(id){return unb64(p.a[id]).then(function(b){mem[id]=b})}))}).catch(function(){}).then(function(){return get("vset")}).then(function(v){if(v)Object.assign(S,v,{mode:"play"});render()})
+});
 </script>
 </body>
 </html>
